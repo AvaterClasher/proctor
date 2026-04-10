@@ -38,15 +38,15 @@ export default async function InterviewRoomPage({
     redirect("/interview");
   }
 
-  const interview = (await response.json()) as {
-    id: string;
-    status: string;
-    userId: string;
+  const data = (await response.json()) as {
+    interview: { id: string; status: string };
+    candidate: { userId: string | null } | null;
   };
 
-  if (interview.userId !== session.user.id) {
+  // Backend already checks ownership, but double-check here
+  if (data.candidate?.userId && data.candidate.userId !== session.user.id) {
     redirect("/interview");
   }
 
-  return <InterviewRoom interview={interview} />;
+  return <InterviewRoom interview={data.interview} />;
 }

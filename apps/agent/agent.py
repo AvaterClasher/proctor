@@ -47,6 +47,7 @@ class TutorScreener(Agent):
         self.interview_id = interview_id
         self.state = InterviewState()
         self._silence_task: asyncio.Task | None = None
+        self.ended_event = asyncio.Event()
 
     # -- lifecycle -----------------------------------------------------------
 
@@ -88,6 +89,9 @@ class TutorScreener(Agent):
                 instructions = build_phase_instructions(self.state)
                 if instructions:
                     self.session.generate_reply(instructions=instructions)
+
+                if self.state.phase == Phase.ENDED:
+                    self.ended_event.set()
 
     # -- silence monitoring --------------------------------------------------
 
@@ -160,16 +164,13 @@ async def entrypoint(ctx: agents.JobContext) -> None:
         interview_done.set()
 
     # Also end when the agent flow reaches the ENDED phase.
-    async def _poll_ended() -> None:
-        while not interview_done.is_set():
-            if agent.state.phase == Phase.ENDED:
-                # Give the final TTS a moment to play out.
-                await asyncio.sleep(3)
-                interview_done.set()
-                return
-            await asyncio.sleep(2)
+    async def _wait_ended() -> None:
+        await agent.ended_event.wait()
+        # Give the final TTS a moment to play out.
+        await asyncio.sleep(3)
+        interview_done.set()
 
-    asyncio.create_task(_poll_ended())
+    asyncio.create_task(_wait_ended())
 
     # Block until the interview is done (disconnect or flow ended).
     await interview_done.wait()

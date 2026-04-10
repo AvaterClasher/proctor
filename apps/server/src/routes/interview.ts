@@ -3,9 +3,13 @@ import { candidate, interview, assessment } from "@proctor/db/schema/interview";
 import { eq, desc, sql } from "drizzle-orm";
 import { Hono } from "hono";
 
+import type { AuthEnv } from "../middleware/auth";
 import { requireAgentApiKey, requireSession } from "../middleware/auth";
 
-const app = new Hono();
+const VALID_INTERVIEW_STATUSES = ["scheduled", "in_progress", "completed", "failed"] as const;
+type InterviewStatus = (typeof VALID_INTERVIEW_STATUSES)[number];
+
+const app = new Hono<AuthEnv>();
 
 app.post("/", requireSession, async (c) => {
   const body = await c.req.json<{
@@ -19,6 +23,7 @@ app.post("/", requireSession, async (c) => {
   }
 
   const db = createDb();
+  const session = c.get("session");
 
   const existingCandidate = await db
     .select()
@@ -34,6 +39,7 @@ app.post("/", requireSession, async (c) => {
       name: body.name,
       email: body.email,
       phone: body.phone ?? null,
+      userId: session.user.id,
     });
   }
 
@@ -44,10 +50,10 @@ app.post("/", requireSession, async (c) => {
     id: interviewId,
     candidateId,
     status: "scheduled",
-    roomName,
+    livekitRoom: roomName,
   });
 
-  return c.json({ interviewId, candidateId, roomName }, 201);
+  return c.json({ id: interviewId, candidateId, roomName }, 201);
 });
 
 app.get("/", requireSession, async (c) => {
@@ -58,8 +64,8 @@ app.get("/", requireSession, async (c) => {
 
   const db = createDb();
 
-  const conditions = statusFilter
-    ? eq(interview.status, statusFilter as "scheduled" | "in_progress" | "completed" | "failed")
+  const conditions = statusFilter && VALID_INTERVIEW_STATUSES.includes(statusFilter as InterviewStatus)
+    ? eq(interview.status, statusFilter as InterviewStatus)
     : undefined;
 
   const [rows, countResult] = await Promise.all([
@@ -93,6 +99,7 @@ app.get("/", requireSession, async (c) => {
 
 app.get("/:id", requireSession, async (c) => {
   const id = c.req.param("id")!;
+  const session = c.get("session");
   const db = createDb();
 
   const row = await db
@@ -104,6 +111,11 @@ app.get("/:id", requireSession, async (c) => {
     .get();
 
   if (!row) {
+    return c.json({ error: "Interview not found" }, 404);
+  }
+
+  // Candidates can only view their own interviews
+  if (row.candidate?.userId && row.candidate.userId !== session.user.id) {
     return c.json({ error: "Interview not found" }, 404);
   }
 
@@ -122,8 +134,8 @@ app.patch("/:id/status", requireAgentApiKey, async (c) => {
     durationSecs?: number;
   }>();
 
-  if (!body.status) {
-    return c.json({ error: "status is required" }, 400);
+  if (!body.status || !VALID_INTERVIEW_STATUSES.includes(body.status as InterviewStatus)) {
+    return c.json({ error: "status is required and must be one of: scheduled, in_progress, completed, failed" }, 400);
   }
 
   const db = createDb();
@@ -141,7 +153,7 @@ app.patch("/:id/status", requireAgentApiKey, async (c) => {
   await db
     .update(interview)
     .set({
-      status: body.status as "scheduled" | "in_progress" | "completed" | "failed",
+      status: body.status as InterviewStatus,
       ...(body.transcript !== undefined && { transcript: body.transcript }),
       ...(body.durationSecs !== undefined && { durationSecs: body.durationSecs }),
     })

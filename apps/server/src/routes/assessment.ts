@@ -42,18 +42,18 @@ app.post("/", requireAgentApiKey, async (c) => {
 
   const id = crypto.randomUUID();
 
+  const VALID_RECOMMENDATIONS = ["strong_yes", "yes", "maybe", "no", "strong_no"] as const;
+  if (!VALID_RECOMMENDATIONS.includes(body.recommendation as (typeof VALID_RECOMMENDATIONS)[number])) {
+    return c.json({ error: "recommendation must be one of: strong_yes, yes, maybe, no, strong_no" }, 400);
+  }
+
   await db.insert(assessment).values({
     id,
     interviewId: body.interviewId,
     overallScore: body.overallScore,
-    recommendation: body.recommendation as
-      | "strong_yes"
-      | "yes"
-      | "maybe"
-      | "no"
-      | "strong_no",
+    recommendation: body.recommendation as (typeof VALID_RECOMMENDATIONS)[number],
     summary: body.summary,
-    dimensions: body.dimensions ?? null,
+    dimensions: JSON.stringify(body.dimensions ?? []),
   });
 
   return c.json({ id, interviewId: body.interviewId }, 201);

@@ -15,6 +15,13 @@
       "when": 1775805687260,
       "tag": "0001_long_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1775807361563,
+      "tag": "0002_fair_lester",
+      "breakpoints": true
     }
   ]
 }

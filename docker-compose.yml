@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Optional: Local LiveKit server for development
   # Use LiveKit Cloud for production

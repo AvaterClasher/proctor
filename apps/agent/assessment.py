@@ -13,6 +13,16 @@ from typing import Any
 
 import httpx
 
+_assessment_client: httpx.AsyncClient | None = None
+
+
+def _get_assessment_client() -> httpx.AsyncClient:
+    """Shared HTTP client for OpenAI API calls."""
+    global _assessment_client
+    if _assessment_client is None or _assessment_client.is_closed:
+        _assessment_client = httpx.AsyncClient(timeout=60.0)
+    return _assessment_client
+
 from prompts import ASSESSMENT_SYSTEM_PROMPT, build_rubric_text
 
 logger = logging.getLogger("tutor-screener.assessment")
@@ -57,17 +67,17 @@ async def generate_assessment(transcript: str) -> dict[str, Any]:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-            resp.raise_for_status()
-            data = resp.json()
+        client = _get_assessment_client()
+        resp = await client.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        resp.raise_for_status()
+        data = resp.json()
 
         content = data["choices"][0]["message"]["content"]
         assessment: dict[str, Any] = json.loads(content)
