@@ -1,0 +1,3 @@
+{
+  "extends": "@proctor/config/tsconfig.base.json"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "proctor",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @proctor/db db:push",
+    "db:generate": "turbo -F @proctor/db db:generate",
+    "deploy": "turbo -F @proctor/infra deploy",
+    "destroy": "turbo -F @proctor/infra destroy"
+  },
+  "dependencies": {
+    "@proctor/env": "*",
+    "dotenv": "^17.2.2",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251213.0",
+    "@proctor/config": "*",
+    "@types/node": "^22.13.14",
+    "turbo": "^2.8.12",
+    "typescript": "^5"
+  },
+  "packageManager": "npm@10.9.4"
+}
