@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 
 import { env } from "@proctor/env/web";
 
-import { authClient } from "@/lib/auth-client";
+import { getAuth } from "@/lib/auth-server";
 
 import InterviewRoom from "./interview-room";
+
+export const dynamic = "force-dynamic";
 
 export default async function InterviewRoomPage({
   params,
@@ -14,11 +16,9 @@ export default async function InterviewRoomPage({
 }) {
   const requestHeaders = await headers();
 
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: requestHeaders,
-      throw: true,
-    },
+  const auth = await getAuth();
+  const session = await auth.api.getSession({
+    headers: requestHeaders,
   });
 
   if (!session?.user) {
@@ -43,7 +43,6 @@ export default async function InterviewRoomPage({
     candidate: { userId: string | null } | null;
   };
 
-  // Backend already checks ownership, but double-check here
   if (data.candidate?.userId && data.candidate.userId !== session.user.id) {
     redirect("/interview");
   }

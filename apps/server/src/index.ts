@@ -8,6 +8,15 @@ import assessmentRoutes from "./routes/assessment";
 import interviewRoutes from "./routes/interview";
 import livekitRoutes from "./routes/livekit";
 
+function auth() {
+  return createAuth({
+    db: env.DB,
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
+    trustedOrigins: [env.CORS_ORIGIN],
+  });
+}
+
 const app = new Hono();
 
 app.use(logger());
@@ -21,7 +30,7 @@ app.use(
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => createAuth().handler(c.req.raw));
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth().handler(c.req.raw));
 
 app.route("/api/livekit", livekitRoutes);
 app.route("/api/interviews", interviewRoutes);

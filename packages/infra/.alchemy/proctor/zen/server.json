@@ -1,0 +1,151 @@
+{
+  "kind": "cloudflare::Worker",
+  "id": "server",
+  "fqn": "proctor/zen/server",
+  "seq": 3,
+  "data": {},
+  "status": "updated",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::Worker",
+    "Symbol(alchemy::ResourceID)": "server",
+    "Symbol(alchemy::ResourceFQN)": "proctor/zen/server",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 3,
+    "cwd": "../../apps/server",
+    "entrypoint": "src/index.ts",
+    "compatibility": "node",
+    "bindings": {
+      "DB": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
+        "Symbol(alchemy::ResourceID)": "database",
+        "Symbol(alchemy::ResourceFQN)": "proctor/zen/database",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 0,
+        "type": "d1",
+        "id": "de496b84-fed3-4510-a32a-66af73ad2911",
+        "name": "proctor-database-zen",
+        "dev": {
+          "id": "proctor-database-zen",
+          "remote": false
+        },
+        "migrationsDir": "../../packages/db/src/migrations",
+        "migrationsTable": "d1_migrations",
+        "jurisdiction": "default"
+      },
+      "CORS_ORIGIN": "https://proctor-web-zen.avater-clasher.workers.dev",
+      "BETTER_AUTH_SECRET": {
+        "@secret": {
+          "version": "v1",
+          "ciphertext": "Co/mOQkrxFKSqXFrEW43FK80OqOE8uEm8+TbCj+63UFBeKMPeCWyHl/kHR/fP8EW0rEdWQSkIA==",
+          "iv": "u5gLGErmWEQgrZPW",
+          "salt": "3bJcuEfPzwjuRtDO1nORZQ==",
+          "tag": "ClAzAh6ChFeniTYY5uBugw=="
+        }
+      },
+      "BETTER_AUTH_URL": "https://proctor-server-zen.avater-clasher.workers.dev",
+      "LIVEKIT_API_KEY": "APIZuGD2WGUPcRy",
+      "LIVEKIT_API_SECRET": {
+        "@secret": {
+          "version": "v1",
+          "ciphertext": "zEaOYAkSpxBGf63dzHpnZFAdRv+SLwVEFqLCgrZO02HhmYYDn4tdNgMnnw==",
+          "iv": "xERoH18uhTZ/kwps",
+          "salt": "fhWKcfMq2REjlZ8HXz4Ffg==",
+          "tag": "TJGgGVg6f7rfXN9argeAgw=="
+        }
+      },
+      "LIVEKIT_URL": "wss://local-openmic-cwlz6ttp.livekit.cloud",
+      "AGENT_API_KEY": {
+        "@secret": {
+          "version": "v1",
+          "ciphertext": "Rj69pxjYODxFrCpUSd1lRBlPjoe0bIUSUlJUcgQXRnhLT8sGnX3P3n+T0xQ15wMYqkZCziUT8B2zan82CvR8RA==",
+          "iv": "HXnfrSD1G/1R2Mpq",
+          "salt": "NTQ4FChEjGg3/xmHCmUuTQ==",
+          "tag": "7HehKL/5On2lwcnyXfxEaw=="
+        }
+      }
+    },
+    "dev": {
+      "hasRemote": true
+    },
+    "type": "service",
+    "id": "server",
+    "name": "proctor-server-zen",
+    "compatibilityDate": "2026-03-10",
+    "compatibilityFlags": [
+      "nodejs_compat",
+      "nodejs_compat_populate_process_env"
+    ],
+    "format": "esm",
+    "createdAt": {
+      "@date": "2026-04-11T11:59:09.847Z"
+    },
+    "updatedAt": {
+      "@date": "2026-04-11T13:04:17.558Z"
+    },
+    "url": "https://proctor-server-zen.avater-clasher.workers.dev"
+  },
+  "props": {
+    "cwd": "../../apps/server",
+    "entrypoint": "src/index.ts",
+    "compatibility": "node",
+    "bindings": {
+      "DB": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
+        "Symbol(alchemy::ResourceID)": "database",
+        "Symbol(alchemy::ResourceFQN)": "proctor/zen/database",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 0,
+        "type": "d1",
+        "id": "de496b84-fed3-4510-a32a-66af73ad2911",
+        "name": "proctor-database-zen",
+        "dev": {
+          "id": "proctor-database-zen",
+          "remote": false
+        },
+        "migrationsDir": "../../packages/db/src/migrations",
+        "migrationsTable": "d1_migrations",
+        "jurisdiction": "default"
+      },
+      "CORS_ORIGIN": "https://proctor-web-zen.avater-clasher.workers.dev",
+      "BETTER_AUTH_SECRET": {
+        "@secret": {
+          "version": "v1",
+          "ciphertext": "BuGHLvmxuOGqTlaRiXzKUvvyy0e/UN6ROOak++FaxR/fRB3ayobh77cquxNSjTYdnFMLuQD7cg==",
+          "iv": "tUBAXhGHZA8B5MnN",
+          "salt": "WtuZmnPXqbfVa9sQV9wxYg==",
+          "tag": "VMHK+i5+q5aHoenBkw9otg=="
+        }
+      },
+      "BETTER_AUTH_URL": "https://proctor-server-zen.avater-clasher.workers.dev",
+      "LIVEKIT_API_KEY": "APIZuGD2WGUPcRy",
+      "LIVEKIT_API_SECRET": {
+        "@secret": {
+          "version": "v1",
+          "ciphertext": "R5Cd9kNvnjcu11/e7H7Ji9uklInNHDjxh4+Z59AOzcGAJXQ23Wq8+grugQ==",
+          "iv": "GKE+nTYx+ksYhRID",
+          "salt": "R53cY2qzQGqZYHIIHV1Tbg==",
+          "tag": "zz6s8Ac3TKhbwNob6lm1Ag=="
+        }
+      },
+      "LIVEKIT_URL": "wss://local-openmic-cwlz6ttp.livekit.cloud",
+      "AGENT_API_KEY": {
+        "@secret": {
+          "version": "v1",
+          "ciphertext": "mOtuWwB0t+ZtMZsTP++cHZZCWWp7LElJS7WFeg+Fh3nPT0Og/BqXtd53kjZGxtTaQx5lhwoX9zAyvUJxP3jZIQ==",
+          "iv": "9DNAAtAJMvskHGLr",
+          "salt": "Hcz7l+cyaHuzHAwjG8J2Og==",
+          "tag": "vwH1NxFMjBa0EzHmSK3FAQ=="
+        }
+      }
+    },
+    "dev": {
+      "port": 3000
+    }
+  }
+}

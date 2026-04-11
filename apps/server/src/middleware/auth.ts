@@ -13,7 +13,12 @@ export type AuthEnv = {
 };
 
 export async function requireSession(c: Context, next: Next) {
-  const auth = createAuth();
+  const auth = createAuth({
+    db: env.DB,
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
+    trustedOrigins: [env.CORS_ORIGIN],
+  });
   const session = await auth.api.getSession({
     headers: c.req.raw.headers,
   });

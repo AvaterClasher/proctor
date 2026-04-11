@@ -1,43 +1,43 @@
-import { createDb } from "@proctor/db";
-import * as schema from "@proctor/db/schema/auth";
-import { env } from "@proctor/env/server";
+import * as schema from "@proctor/db/schema";
+import * as authSchema from "@proctor/db/schema/auth";
+import type { D1Database } from "@cloudflare/workers-types";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { drizzle } from "drizzle-orm/d1";
 
-export function createAuth() {
-  const db = createDb();
+export interface AuthConfig {
+  db: D1Database;
+  secret: string;
+  baseURL: string;
+  trustedOrigins: string[];
+}
+
+export function createAuth(config: AuthConfig) {
+  const db = drizzle(config.db, { schema });
 
   return betterAuth({
     database: drizzleAdapter(db, {
       provider: "sqlite",
-
-      schema: schema,
+      schema: authSchema,
     }),
-    trustedOrigins: [env.CORS_ORIGIN],
+    trustedOrigins: config.trustedOrigins,
     emailAndPassword: {
       enabled: true,
     },
-    // uncomment cookieCache setting when ready to deploy to Cloudflare using *.workers.dev domains
-    // session: {
-    //   cookieCache: {
-    //     enabled: true,
-    //     maxAge: 60,
-    //   },
-    // },
-    secret: env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL,
+    session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: 60,
+      },
+    },
+    secret: config.secret,
+    baseURL: config.baseURL,
     advanced: {
       defaultCookieAttributes: {
         sameSite: "none",
         secure: true,
         httpOnly: true,
       },
-      // uncomment crossSubDomainCookies setting when ready to deploy and replace <your-workers-subdomain> with your actual workers subdomain
-      // https://developers.cloudflare.com/workers/wrangler/configuration/#workersdev
-      // crossSubDomainCookies: {
-      //   enabled: true,
-      //   domain: "<your-workers-subdomain>",
-      // },
     },
   });
 }

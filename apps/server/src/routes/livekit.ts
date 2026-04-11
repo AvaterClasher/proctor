@@ -20,10 +20,18 @@ async function ensureCloudAgentDispatched(roomName: string): Promise<void> {
     env.LIVEKIT_API_SECRET,
   );
 
-  const dispatches = await client.listDispatch(roomName);
-  const already = dispatches.some((d) => d.agentName === LIVEKIT_AGENT_NAME);
-  if (already) {
-    return;
+  try {
+    const dispatches = await client.listDispatch(roomName);
+    if (dispatches.some((d) => d.agentName === LIVEKIT_AGENT_NAME)) {
+      return;
+    }
+  } catch (e) {
+    // LiveKit creates rooms lazily, so listDispatch 404s on a fresh room.
+    // Anything else is a real failure.
+    const message = e instanceof Error ? e.message : String(e);
+    if (!message.toLowerCase().includes("does not exist")) {
+      throw e;
+    }
   }
 
   await client.createDispatch(roomName, LIVEKIT_AGENT_NAME);
@@ -55,9 +63,13 @@ app.post("/token", requireSession, async (c) => {
   try {
     await ensureCloudAgentDispatched(roomName);
   } catch (e) {
+    const detail = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
     console.error("LiveKit agent dispatch failed:", e);
     return c.json(
-      { error: "Could not start interview agent. Check LiveKit credentials and deployment." },
+      {
+        error: "Could not start interview agent. Check LiveKit credentials and deployment.",
+        detail,
+      },
       503,
     );
   }

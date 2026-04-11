@@ -3,7 +3,6 @@
 import { Button } from "@proctor/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@proctor/ui/components/card";
 import { Skeleton } from "@proctor/ui/components/skeleton";
-import { env } from "@proctor/env/web";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -61,10 +60,9 @@ export default function ReviewDetail({
   const fetchInterview = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${env.NEXT_PUBLIC_SERVER_URL}/api/interviews/${interviewId}`,
-        { credentials: "include" },
-      );
+      const res = await fetch(`/api/interviews/${interviewId}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to fetch interview");
       const data: InterviewDetail = await res.json();
       setInterview(data);

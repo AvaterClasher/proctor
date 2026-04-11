@@ -10,7 +10,6 @@ import {
 } from "@proctor/ui/components/card";
 import { Input } from "@proctor/ui/components/input";
 import { Label } from "@proctor/ui/components/label";
-import { env } from "@proctor/env/web";
 import { useForm } from "@tanstack/react-form";
 import { Clock, Headphones, Mic, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -34,19 +33,16 @@ export default function StartInterview({
     },
     onSubmit: async ({ value }) => {
       try {
-        const response = await fetch(
-          `${env.NEXT_PUBLIC_SERVER_URL}/api/interviews`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              name: value.name,
-              email: value.email,
-              phone: value.phone || undefined,
-            }),
-          },
-        );
+        const response = await fetch("/api/interviews", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            name: value.name,
+            email: value.email,
+            phone: value.phone || undefined,
+          }),
+        });
 
         if (!response.ok) {
           const body = (await response.json().catch(() => null)) as {

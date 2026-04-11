@@ -12,12 +12,12 @@
   "scripts": {},
   "dependencies": {
     "@proctor/db": "*",
-    "@proctor/env": "*",
     "better-auth": "1.5.5",
-    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.45.1",
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251213.0",
     "@proctor/config": "*",
     "typescript": "^5"
   }

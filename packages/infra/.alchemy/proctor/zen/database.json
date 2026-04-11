@@ -3,17 +3,26 @@
   "id": "database",
   "fqn": "proctor/zen/database",
   "seq": 0,
-  "status": "creating",
   "data": {},
+  "status": "created",
   "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
     "Symbol(alchemy::ResourceID)": "database",
     "Symbol(alchemy::ResourceFQN)": "proctor/zen/database",
-    "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
     "Symbol(alchemy::ResourceScope)": {
       "@scope": null
     },
     "Symbol(alchemy::ResourceSeq)": 0,
-    "Symbol(alchemy::DestroyStrategy)": "sequential"
+    "type": "d1",
+    "id": "de496b84-fed3-4510-a32a-66af73ad2911",
+    "name": "proctor-database-zen",
+    "dev": {
+      "id": "proctor-database-zen",
+      "remote": false
+    },
+    "migrationsDir": "../../packages/db/src/migrations",
+    "migrationsTable": "d1_migrations",
+    "jurisdiction": "default"
   },
   "props": {
     "migrationsDir": "../../packages/db/src/migrations",
@@ -35,6 +44,5 @@
     "dev": {
       "force": false
     }
-  },
-  "oldProps": {}
+  }
 }

@@ -33,10 +33,11 @@ export const web = await Nextjs("web", {
   bindings: {
     NEXT_PUBLIC_SERVER_URL: alchemy.env.NEXT_PUBLIC_SERVER_URL!,
     NEXT_PUBLIC_LIVEKIT_URL: alchemy.env.NEXT_PUBLIC_LIVEKIT_URL!,
+    NEXT_PUBLIC_APP_URL: alchemy.env.NEXT_PUBLIC_APP_URL!,
     DB: db,
     CORS_ORIGIN: alchemy.env.CORS_ORIGIN!,
     BETTER_AUTH_SECRET: alchemy.secret.env.BETTER_AUTH_SECRET!,
-    BETTER_AUTH_URL: alchemy.env.BETTER_AUTH_URL!,
+    BETTER_AUTH_URL: alchemy.env.NEXT_PUBLIC_APP_URL!,
   },
   dev: {
     env: {

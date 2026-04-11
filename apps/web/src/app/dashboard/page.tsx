@@ -1,16 +1,16 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { authClient } from "@/lib/auth-client";
+import { getAuth } from "@/lib/auth-server";
 
 import Dashboard from "./dashboard";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-      throw: true,
-    },
+  const auth = await getAuth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
 
   if (!session?.user) {

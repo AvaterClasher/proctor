@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@proctor/ui/components/dropdown-menu";
 import { Skeleton } from "@proctor/ui/components/skeleton";
-import { env } from "@proctor/env/web";
 import { ChevronRight, Mic } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -57,10 +56,9 @@ export default function AdminDashboard({
   const fetchInterviews = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${env.NEXT_PUBLIC_SERVER_URL}/api/interviews?page=1&limit=20`,
-        { credentials: "include" },
-      );
+      const res = await fetch("/api/interviews?page=1&limit=20", {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to fetch interviews");
       const data: { interviews?: InterviewListItem[] } | InterviewListItem[] =
         await res.json();
