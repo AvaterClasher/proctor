@@ -1957,7 +1957,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/apps/web/handler.mjs": {
-      "bytes": 7791703,
+      "bytes": 7805928,
       "imports": [
         {
           "path": "node:timers",
@@ -2735,7 +2735,7 @@
       "imports": [],
       "exports": [],
       "inputs": {},
-      "bytes": 17694057
+      "bytes": 17723365
     },
     "../../packages/infra/.alchemy/out/proctor-web-zen/worker.js": {
       "imports": [
@@ -3227,7 +3227,7 @@
           "bytesInOutput": 74
         },
         ".open-next/server-functions/default/apps/web/handler.mjs": {
-          "bytesInOutput": 7387935
+          "bytesInOutput": 7401974
         },
         ".open-next/server-functions/default/handler.mjs": {
           "bytesInOutput": 95
@@ -3260,7 +3260,7 @@
           "bytesInOutput": 3396
         }
       },
-      "bytes": 7938432
+      "bytes": 7952471
     }
   }
 }

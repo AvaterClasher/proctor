@@ -40,10 +40,10 @@
       "BETTER_AUTH_SECRET": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "Co/mOQkrxFKSqXFrEW43FK80OqOE8uEm8+TbCj+63UFBeKMPeCWyHl/kHR/fP8EW0rEdWQSkIA==",
-          "iv": "u5gLGErmWEQgrZPW",
-          "salt": "3bJcuEfPzwjuRtDO1nORZQ==",
-          "tag": "ClAzAh6ChFeniTYY5uBugw=="
+          "ciphertext": "A+ml+A64VvFPlHcdj4MR9P6sIUK5z7vbGjWiOhNYf6va5Z6ccb1y7HI8tmcJW1EJKCxYTCYFBw==",
+          "iv": "ylK5IQNlpj7xoqmv",
+          "salt": "DgYc3MtO/qQRoizQyfn3Ug==",
+          "tag": "afp1fj+DMAWUwEO24bcKDg=="
         }
       },
       "BETTER_AUTH_URL": "https://proctor-server-zen.avater-clasher.workers.dev",
@@ -51,20 +51,20 @@
       "LIVEKIT_API_SECRET": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "zEaOYAkSpxBGf63dzHpnZFAdRv+SLwVEFqLCgrZO02HhmYYDn4tdNgMnnw==",
-          "iv": "xERoH18uhTZ/kwps",
-          "salt": "fhWKcfMq2REjlZ8HXz4Ffg==",
-          "tag": "TJGgGVg6f7rfXN9argeAgw=="
+          "ciphertext": "8VeOdO06ylKjFbY36M7Cn5zXzFrgy2F8EEkzCbE1A6m6wUhXDTHD3zosxQ==",
+          "iv": "/ZGon8BdV52pmkMt",
+          "salt": "ixE9ikdv/7KxC5w9Xb4PBg==",
+          "tag": "bxdY3tAfCmhyYk40DMgYMg=="
         }
       },
       "LIVEKIT_URL": "wss://local-openmic-cwlz6ttp.livekit.cloud",
       "AGENT_API_KEY": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "Rj69pxjYODxFrCpUSd1lRBlPjoe0bIUSUlJUcgQXRnhLT8sGnX3P3n+T0xQ15wMYqkZCziUT8B2zan82CvR8RA==",
-          "iv": "HXnfrSD1G/1R2Mpq",
-          "salt": "NTQ4FChEjGg3/xmHCmUuTQ==",
-          "tag": "7HehKL/5On2lwcnyXfxEaw=="
+          "ciphertext": "lQcVEy1dEgBsMHLDVWbQjSPlT3Ccub1ih6QoZ7oisaUQCzgnHQINK+S26Bigg5a0GHQ4Z53ZXQj4zl3bnpJtbw==",
+          "iv": "uUJL8lU07NRWVCrb",
+          "salt": "+A3Z89k/WQ0hb4Zxf0Cddg==",
+          "tag": "Nnj0SKGyxmvMbeC1Y2Hapg=="
         }
       }
     },
@@ -84,7 +84,7 @@
       "@date": "2026-04-11T11:59:09.847Z"
     },
     "updatedAt": {
-      "@date": "2026-04-11T13:04:17.558Z"
+      "@date": "2026-04-11T13:15:28.155Z"
     },
     "url": "https://proctor-server-zen.avater-clasher.workers.dev"
   },
@@ -116,10 +116,10 @@
       "BETTER_AUTH_SECRET": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "BuGHLvmxuOGqTlaRiXzKUvvyy0e/UN6ROOak++FaxR/fRB3ayobh77cquxNSjTYdnFMLuQD7cg==",
-          "iv": "tUBAXhGHZA8B5MnN",
-          "salt": "WtuZmnPXqbfVa9sQV9wxYg==",
-          "tag": "VMHK+i5+q5aHoenBkw9otg=="
+          "ciphertext": "Ndn0oYPoy3adb8f/eRT9rqPl7r4FBWDO0iapepNT2TQHLRlN5Wo/pgLiKbZ7+U0euZaaf+oKUQ==",
+          "iv": "RXD1ComYEAEKW071",
+          "salt": "HBPJP+Cm3SIpYflNqEfpNw==",
+          "tag": "3EYHQzYfo3XnQy/fG/IrEA=="
         }
       },
       "BETTER_AUTH_URL": "https://proctor-server-zen.avater-clasher.workers.dev",
@@ -127,20 +127,20 @@
       "LIVEKIT_API_SECRET": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "R5Cd9kNvnjcu11/e7H7Ji9uklInNHDjxh4+Z59AOzcGAJXQ23Wq8+grugQ==",
-          "iv": "GKE+nTYx+ksYhRID",
-          "salt": "R53cY2qzQGqZYHIIHV1Tbg==",
-          "tag": "zz6s8Ac3TKhbwNob6lm1Ag=="
+          "ciphertext": "k2L0Cc96I+ymVTTvI9gx99dUQC33Hlb1mQMxkAiwXG+VxiBzQcBngLBc2A==",
+          "iv": "GBx4cnSin4IQeI+m",
+          "salt": "sF59I7aU4qf69kGG0WjMIQ==",
+          "tag": "ejqlpq4+766HgsSLKBbH9Q=="
         }
       },
       "LIVEKIT_URL": "wss://local-openmic-cwlz6ttp.livekit.cloud",
       "AGENT_API_KEY": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "mOtuWwB0t+ZtMZsTP++cHZZCWWp7LElJS7WFeg+Fh3nPT0Og/BqXtd53kjZGxtTaQx5lhwoX9zAyvUJxP3jZIQ==",
-          "iv": "9DNAAtAJMvskHGLr",
-          "salt": "Hcz7l+cyaHuzHAwjG8J2Og==",
-          "tag": "vwH1NxFMjBa0EzHmSK3FAQ=="
+          "ciphertext": "SLvO2dCxdczLue/epAfbc07EVR6JuMT6PMblP32xPxIox0q7RJdUThIq8rRHLbC9dlfRA87dKM5FYO2Todj2Mg==",
+          "iv": "ndxstQBeefcU9EcM",
+          "salt": "0OF7Mw8iOWXtTGFzApJxtQ==",
+          "tag": "G2XDK8KpF7TT91ptIb4unA=="
         }
       }
     },

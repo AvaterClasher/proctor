@@ -44,10 +44,10 @@
       "BETTER_AUTH_SECRET": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "W0FzUhrjeBY66psTBVJayqr9NbjvjCShyYonxqnjMd3+amXNI3Xr2W6dhaLlYymYas2m/zZ/ag==",
-          "iv": "IIjnB4gmC70bLKR4",
-          "salt": "o4ydoObxsHIFY7bAGH5NlQ==",
-          "tag": "OD6CwiiTSLafMkiV8jid5g=="
+          "ciphertext": "Okjw3iGyw/aP8dXRx13yiR81NdwiOalkvN1JoVBwDycBfb+u1Fy2cWhPzqOtRz//YZR4nPauxQ==",
+          "iv": "o/jjjGIFc0bVCEfN",
+          "salt": "Lq1rcuPJXG0BXFE4bnp1Nw==",
+          "tag": "hBf58qB4fIsgUFjVZrkWKw=="
         }
       },
       "BETTER_AUTH_URL": "https://proctor-web-zen.avater-clasher.workers.dev",
@@ -83,7 +83,7 @@
       "@date": "2026-04-11T11:58:55.626Z"
     },
     "updatedAt": {
-      "@date": "2026-04-11T13:04:05.401Z"
+      "@date": "2026-04-11T13:15:18.001Z"
     },
     "url": "https://proctor-web-zen.avater-clasher.workers.dev"
   },
@@ -119,10 +119,10 @@
       "BETTER_AUTH_SECRET": {
         "@secret": {
           "version": "v1",
-          "ciphertext": "qIDvT3iXbNZjRMiZJ72eYjDGrLLEY1dHCT4WTiN+jVh6RnHJfAVNqQpgCIl1u8cetVthnHBF4w==",
-          "iv": "tnuiRCU+oljz0jyc",
-          "salt": "loYfCYuxk6pkh6jHXU+IqA==",
-          "tag": "tWGduyVtH+k6g3By3RAsyg=="
+          "ciphertext": "lvmr9Wt/a5ZGTBdcR6dJE0WxSx69WVsn61Z6vjoWr7VZLACQBp8IuwVMd/ZfTH8UVgK0k4jlEA==",
+          "iv": "m3miPjdRvm6SARZL",
+          "salt": "Yu2TXuFxqNkv//c+mkzsOA==",
+          "tag": "mfMEDHjw0H/fxkYpBqA4EQ=="
         }
       },
       "BETTER_AUTH_URL": "https://proctor-web-zen.avater-clasher.workers.dev",
