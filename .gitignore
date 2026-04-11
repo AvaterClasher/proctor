@@ -1,6 +1,7 @@
 .turbo
 node_modules
 .env
+packages/infra/.env
 apps/agent/.env
 apps/agent/__pycache__/
 apps/agent/.venv/

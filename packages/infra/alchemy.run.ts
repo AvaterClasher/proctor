@@ -2,13 +2,27 @@ import alchemy from "alchemy";
 import { Nextjs } from "alchemy/cloudflare";
 import { Worker } from "alchemy/cloudflare";
 import { D1Database } from "alchemy/cloudflare";
+import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
 
 config({ path: "./.env" });
 config({ path: "../../apps/web/.env" });
 config({ path: "../../apps/server/.env" });
 
-const app = await alchemy("proctor");
+/** Persistent state for deploy/CI; generate with `openssl rand -base64 32`. */
+const useCloudflareState = Boolean(process.env.ALCHEMY_STATE_TOKEN?.trim());
+
+const app = await alchemy("proctor", {
+  stage: process.env.STAGE,
+  ...(useCloudflareState
+    ? {
+        stateStore: (scope) =>
+          new CloudflareStateStore(scope, {
+            scriptName: "proctor-alchemy-state",
+          }),
+      }
+    : {}),
+});
 
 const db = await D1Database("database", {
   migrationsDir: "../../packages/db/src/migrations",

@@ -1,0 +1,40 @@
+{
+  "kind": "cloudflare::D1Database",
+  "id": "database",
+  "fqn": "proctor/zen/database",
+  "seq": 0,
+  "status": "creating",
+  "data": {},
+  "output": {
+    "Symbol(alchemy::ResourceID)": "database",
+    "Symbol(alchemy::ResourceFQN)": "proctor/zen/database",
+    "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 0,
+    "Symbol(alchemy::DestroyStrategy)": "sequential"
+  },
+  "props": {
+    "migrationsDir": "../../packages/db/src/migrations",
+    "migrationsFiles": [
+      {
+        "id": "0000_medical_frog_thor.sql",
+        "hash": "66aa24c1650de43e3240f01805560e3401a34c9568958876cb3b5eaa42113f6a"
+      },
+      {
+        "id": "0001_long_leopardon.sql",
+        "hash": "a8204e9767ae5db41f844635fcf4948747092848350ec237d8123557523cf1b6"
+      },
+      {
+        "id": "0002_fair_lester.sql",
+        "hash": "382f3618583b550acdd8ca0472c4e5de8e6e9e67639c35defdd250fff856a6f0"
+      }
+    ],
+    "importFiles": [],
+    "dev": {
+      "force": false
+    }
+  },
+  "oldProps": {}
+}
