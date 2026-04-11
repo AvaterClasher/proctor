@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 
 from prompts import FOLLOW_UP_PROMPTS, QUESTION_BANK
@@ -63,15 +64,22 @@ class InterviewState:
         self.last_activity_time = time.time()
 
     def add_transcript(self, role: str, text: str) -> None:
-        self.transcript_items.append({"role": role, "text": text})
+        self.transcript_items.append({
+            "role": role,
+            "content": text,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
         self.record_activity()
 
     def get_full_transcript(self) -> str:
         lines: list[str] = []
         for item in self.transcript_items:
             speaker = "Interviewer" if item["role"] == "agent" else "Candidate"
-            lines.append(f"{speaker}: {item['text']}")
+            lines.append(f"{speaker}: {item['content']}")
         return "\n\n".join(lines)
+
+    def get_transcript_items(self) -> list[dict[str, str]]:
+        return list(self.transcript_items)
 
 
 def get_next_question(state: InterviewState) -> str | None:

@@ -35,7 +35,10 @@ async def post_assessment(interview_id: str, assessment: dict[str, Any]) -> bool
     """
     body = {
         "interviewId": interview_id,
-        **assessment,
+        "overallScore": assessment.get("overall_score"),
+        "recommendation": assessment.get("recommendation"),
+        "summary": assessment.get("summary"),
+        "dimensions": assessment.get("dimensions", []),
     }
     try:
         resp = await _get_client().post("/api/assessments", json=body)
@@ -54,16 +57,27 @@ async def post_assessment(interview_id: str, assessment: dict[str, Any]) -> bool
     return False
 
 
-async def update_interview_status(interview_id: str, status: str) -> bool:
+async def update_interview_status(
+    interview_id: str,
+    status: str,
+    transcript: str | None = None,
+) -> bool:
     """PATCH the interview status on the backend.
 
     Valid statuses typically include: in_progress, completed, failed.
+    When ``transcript`` is provided it should be a JSON-encoded list of
+    ``{role, content, timestamp}`` items and will be persisted alongside
+    the status change.
+
     Returns True on success, False on failure.
     """
+    body: dict[str, Any] = {"status": status}
+    if transcript is not None:
+        body["transcript"] = transcript
     try:
         resp = await _get_client().patch(
             f"/api/interviews/{interview_id}/status",
-            json={"status": status},
+            json=body,
         )
         resp.raise_for_status()
         logger.info("Interview %s status updated to %s", interview_id, status)

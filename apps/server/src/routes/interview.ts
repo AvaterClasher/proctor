@@ -119,8 +119,17 @@ app.get("/:id", requireSession, async (c) => {
     return c.json({ error: "Interview not found" }, 404);
   }
 
+  let parsedTranscript: Array<{ role: string; content: string; timestamp: string }> | null = null;
+  if (row.interview.transcript) {
+    try {
+      parsedTranscript = JSON.parse(row.interview.transcript);
+    } catch {
+      parsedTranscript = null;
+    }
+  }
+
   return c.json({
-    interview: row.interview,
+    interview: { ...row.interview, transcript: parsedTranscript },
     candidate: row.candidate,
     assessment: row.assessment,
   });

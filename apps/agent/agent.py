@@ -8,6 +8,7 @@ posts a rubric-based assessment to the Proctor backend when done.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 
 from dotenv import load_dotenv
@@ -179,10 +180,13 @@ async def entrypoint(ctx: agents.JobContext) -> None:
     # ---- Post-interview processing ----------------------------------------
 
     transcript = agent.state.get_full_transcript()
+    transcript_json = json.dumps(agent.state.get_transcript_items())
 
     if not transcript.strip():
         logger.warning("No transcript collected for %s", interview_id)
-        await update_interview_status(interview_id, "failed")
+        await update_interview_status(
+            interview_id, "failed", transcript=transcript_json
+        )
         return
 
     was_completed = agent.state.phase == Phase.ENDED
@@ -191,7 +195,7 @@ async def entrypoint(ctx: agents.JobContext) -> None:
     logger.info("Interview %s finished (status=%s). Generating assessment...", interview_id, status)
     assessment = await generate_assessment(transcript)
     await post_assessment(interview_id, assessment)
-    await update_interview_status(interview_id, status)
+    await update_interview_status(interview_id, status, transcript=transcript_json)
     logger.info("Assessment posted for %s", interview_id)
 
 

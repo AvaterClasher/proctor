@@ -60,9 +60,41 @@ export default function AdminDashboard({
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch interviews");
-      const data: { interviews?: InterviewListItem[] } | InterviewListItem[] =
-        await res.json();
-      setInterviews(Array.isArray(data) ? data : data.interviews ?? []);
+      const payload = (await res.json()) as {
+        data: Array<{
+          interview: {
+            id: string;
+            candidateId: string;
+            livekitRoom: string;
+            status: InterviewListItem["status"];
+            startedAt: string | null;
+            endedAt: string | null;
+            durationSecs: number | null;
+            createdAt: string;
+          };
+          candidate: { name: string; email: string } | null;
+          assessment: {
+            overallScore: number;
+            recommendation: string;
+          } | null;
+        }>;
+      };
+      setInterviews(
+        payload.data.map((row) => ({
+          id: row.interview.id,
+          candidateId: row.interview.candidateId,
+          candidateName: row.candidate?.name ?? "Unknown",
+          candidateEmail: row.candidate?.email ?? "",
+          livekitRoom: row.interview.livekitRoom,
+          status: row.interview.status,
+          startedAt: row.interview.startedAt,
+          endedAt: row.interview.endedAt,
+          durationSecs: row.interview.durationSecs,
+          createdAt: row.interview.createdAt,
+          overallScore: row.assessment?.overallScore ?? null,
+          recommendation: row.assessment?.recommendation ?? null,
+        })),
+      );
     } catch (err) {
       toast.error("Failed to load interviews");
       console.error(err);

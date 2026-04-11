@@ -14,6 +14,7 @@ import {
   useAgent,
   useAudioWaveform,
   useSession,
+  useSessionContext,
 } from "@livekit/components-react";
 import { TokenSource } from "livekit-client";
 import { Mic, MicOff, Phone, PhoneOff, Radio } from "lucide-react";
@@ -23,8 +24,6 @@ import { toast } from "sonner";
 import AudioVisualizer from "@/components/audio-visualizer";
 
 import InterviewComplete from "./interview-complete";
-
-type InterviewStage = "pre-connect" | "active" | "complete";
 
 interface InterviewData {
   id: string;
@@ -36,69 +35,14 @@ export default function InterviewRoom({
 }: {
   interview: InterviewData;
 }) {
-  const [stage, setStage] = useState<InterviewStage>(
-    interview.status === "completed" ? "complete" : "pre-connect",
-  );
-  const [micPermission, setMicPermission] = useState<
-    "prompt" | "granted" | "denied"
-  >("prompt");
-
-  const requestMicPermission = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop());
-      setMicPermission("granted");
-    } catch {
-      setMicPermission("denied");
-      toast.error(
-        "Microphone access is required for the interview. Please allow microphone access in your browser settings.",
-      );
-    }
-  }, []);
-
-  useEffect(() => {
-    if (stage === "pre-connect") {
-      requestMicPermission();
-    }
-  }, [stage, requestMicPermission]);
-
-  const handleBegin = useCallback(() => {
-    setStage("active");
-  }, []);
-
-  const handleComplete = useCallback(() => {
-    setStage("complete");
-  }, []);
-
-  if (stage === "complete") {
+  if (interview.status === "completed") {
     return <InterviewComplete />;
   }
 
-  if (stage === "pre-connect") {
-    return (
-      <PreConnectView
-        micPermission={micPermission}
-        onRequestMic={requestMicPermission}
-        onBegin={handleBegin}
-      />
-    );
-  }
-
-  return (
-    <ActiveInterviewSession
-      interviewId={interview.id}
-      onEnd={handleComplete}
-    />
-  );
+  return <LiveInterviewView interviewId={interview.id} />;
 }
 
-function ActiveInterviewSession({
-  interviewId,
-  onEnd,
-}: {
-  interviewId: string;
-  onEnd: () => void;
-}) {
+function LiveInterviewView({ interviewId }: { interviewId: string }) {
   const tokenSource = useMemo(
     () =>
       TokenSource.custom(async () => {
@@ -125,40 +69,84 @@ function ActiveInterviewSession({
 
   const session = useSession(tokenSource);
 
-  const startedRef = useRef(false);
-
-  useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    session.start({ tracks: { microphone: { enabled: true } } }).catch((e) => {
-      console.error("Failed to start LiveKit session:", e);
-      toast.error("Failed to connect to the interview. Please try again.");
-      onEnd();
-    });
-    return () => {
-      session.end().catch(() => {});
-    };
-    // Intentionally run once: session identity is stable for the lifetime of this component.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <SessionProvider session={session}>
-      <ActiveInterview onEnd={onEnd} />
+      <ViewController />
       <RoomAudioRenderer />
     </SessionProvider>
   );
 }
 
-function PreConnectView({
-  micPermission,
-  onRequestMic,
-  onBegin,
+function ViewController() {
+  const session = useSessionContext();
+  const hasConnectedRef = useRef(false);
+  const [showComplete, setShowComplete] = useState(false);
+
+  useEffect(() => {
+    if (session.isConnected) {
+      hasConnectedRef.current = true;
+    } else if (
+      hasConnectedRef.current &&
+      session.connectionState === "disconnected"
+    ) {
+      setShowComplete(true);
+    }
+  }, [session.isConnected, session.connectionState]);
+
+  const handleEnd = useCallback(() => {
+    session.end().catch(() => {});
+    setShowComplete(true);
+  }, [session]);
+
+  if (showComplete) {
+    return <InterviewComplete />;
+  }
+
+  if (!session.isConnected) {
+    return <WelcomeView onStart={session.start} />;
+  }
+
+  return <InterviewActive onEnd={handleEnd} />;
+}
+
+function WelcomeView({
+  onStart,
 }: {
-  micPermission: "prompt" | "granted" | "denied";
-  onRequestMic: () => void;
-  onBegin: () => void;
+  onStart: (options?: Parameters<ReturnType<typeof useSession>["start"]>[0]) => Promise<void>;
 }) {
+  const [micPermission, setMicPermission] = useState<
+    "prompt" | "granted" | "denied"
+  >("prompt");
+  const [isStarting, setIsStarting] = useState(false);
+
+  const requestMicPermission = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      setMicPermission("granted");
+    } catch {
+      setMicPermission("denied");
+      toast.error(
+        "Microphone access is required for the interview. Please allow microphone access in your browser settings.",
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    requestMicPermission();
+  }, [requestMicPermission]);
+
+  const handleBegin = useCallback(async () => {
+    setIsStarting(true);
+    try {
+      await onStart({ tracks: { microphone: { enabled: true } } });
+    } catch (e) {
+      console.error("Failed to start LiveKit session:", e);
+      toast.error("Failed to connect to the interview. Please try again.");
+      setIsStarting(false);
+    }
+  }, [onStart]);
+
   return (
     <div className="mx-auto flex w-full max-w-lg items-center justify-center px-4 py-16">
       <Card className="w-full">
@@ -188,7 +176,7 @@ function PreConnectView({
               </div>
             </div>
             {micPermission === "denied" && (
-              <Button variant="outline" size="sm" onClick={onRequestMic}>
+              <Button variant="outline" size="sm" onClick={requestMicPermission}>
                 Retry
               </Button>
             )}
@@ -207,11 +195,11 @@ function PreConnectView({
           <Button
             size="lg"
             className="w-full"
-            disabled={micPermission !== "granted"}
-            onClick={onBegin}
+            disabled={micPermission !== "granted" || isStarting}
+            onClick={handleBegin}
           >
             <Phone className="size-4" />
-            I&apos;m Ready
+            {isStarting ? "Connecting..." : "I'm Ready"}
           </Button>
         </CardContent>
       </Card>
@@ -219,7 +207,7 @@ function PreConnectView({
   );
 }
 
-function ActiveInterview({ onEnd }: { onEnd: () => void }) {
+function InterviewActive({ onEnd }: { onEnd: () => void }) {
   const agent = useAgent();
   const [elapsed, setElapsed] = useState(0);
   const [showStatus, setShowStatus] = useState(false);
@@ -236,12 +224,6 @@ function ActiveInterview({ onEnd }: { onEnd: () => void }) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (agent.state === "disconnected" || agent.state === "failed") {
-      onEnd();
-    }
-  }, [agent.state, onEnd]);
-
   const minutes = Math.floor(elapsed / 60);
   const seconds = elapsed % 60;
   const timeDisplay = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
@@ -257,10 +239,6 @@ function ActiveInterview({ onEnd }: { onEnd: () => void }) {
               agent.state === "pre-connect-buffering"
             ? "Connecting to interviewer..."
             : "Ready";
-
-  const handleEnd = useCallback(() => {
-    onEnd();
-  }, [onEnd]);
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-8 px-4 py-8">
@@ -283,15 +261,11 @@ function ActiveInterview({ onEnd }: { onEnd: () => void }) {
         </CardContent>
       </Card>
 
-      {showStatus && agent.state !== "connecting" && (
+      {showStatus && (
         <Card className="w-full">
           <CardContent className="py-3">
             <p className="text-center text-xs text-muted-foreground">
-              {agent.state === "speaking"
-                ? "The interviewer is speaking..."
-                : agent.state === "listening"
-                  ? "Go ahead, speak your answer..."
-                  : "..."}
+              Agent state: {agent.state}
             </p>
           </CardContent>
         </Card>
@@ -306,7 +280,7 @@ function ActiveInterview({ onEnd }: { onEnd: () => void }) {
           {showStatus ? "Hide Status" : "Show Status"}
         </Button>
 
-        <Button variant="destructive" size="sm" onClick={handleEnd}>
+        <Button variant="destructive" size="sm" onClick={onEnd}>
           <PhoneOff className="size-4" />
           End Interview
         </Button>
@@ -314,4 +288,3 @@ function ActiveInterview({ onEnd }: { onEnd: () => void }) {
     </div>
   );
 }
-

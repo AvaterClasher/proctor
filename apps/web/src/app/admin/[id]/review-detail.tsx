@@ -64,8 +64,66 @@ export default function ReviewDetail({
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch interview");
-      const data: InterviewDetail = await res.json();
-      setInterview(data);
+      const raw = (await res.json()) as {
+        interview: {
+          id: string;
+          candidateId: string;
+          livekitRoom: string;
+          status: "scheduled" | "in_progress" | "completed" | "failed";
+          startedAt: string | null;
+          endedAt: string | null;
+          durationSecs: number | null;
+          createdAt: string;
+          transcript: Array<{
+            role: "agent" | "candidate";
+            content: string;
+            timestamp: string;
+          }> | null;
+        };
+        candidate: { name: string; email: string } | null;
+        assessment: {
+          id: string;
+          overallScore: number;
+          recommendation: string;
+          summary: string;
+          dimensions: string | null;
+        } | null;
+      };
+
+      type Dimension = NonNullable<InterviewDetail["assessment"]>["dimensions"][number];
+      let parsedDimensions: Dimension[] = [];
+      if (raw.assessment?.dimensions) {
+        try {
+          parsedDimensions = JSON.parse(raw.assessment.dimensions) as Dimension[];
+        } catch {
+          parsedDimensions = [];
+        }
+      }
+
+      setInterview({
+        id: raw.interview.id,
+        candidateId: raw.interview.candidateId,
+        candidateName: raw.candidate?.name ?? "Unknown",
+        candidateEmail: raw.candidate?.email ?? "",
+        livekitRoom: raw.interview.livekitRoom,
+        status: raw.interview.status,
+        startedAt: raw.interview.startedAt,
+        endedAt: raw.interview.endedAt,
+        durationSecs: raw.interview.durationSecs,
+        createdAt: raw.interview.createdAt,
+        overallScore: raw.assessment?.overallScore ?? null,
+        recommendation: raw.assessment?.recommendation ?? null,
+        transcript: raw.interview.transcript,
+        assessment: raw.assessment
+          ? {
+              id: raw.assessment.id,
+              overallScore: raw.assessment.overallScore,
+              recommendation: raw.assessment.recommendation,
+              summary: raw.assessment.summary,
+              dimensions: parsedDimensions,
+            }
+          : null,
+      });
     } catch (err) {
       toast.error("Failed to load interview details");
       console.error(err);
