@@ -59,6 +59,8 @@ export const server = await Worker("server", {
     LIVEKIT_API_SECRET: alchemy.secret.env.LIVEKIT_API_SECRET!,
     LIVEKIT_URL: alchemy.env.LIVEKIT_URL!,
     AGENT_API_KEY: alchemy.secret.env.AGENT_API_KEY!,
+    OPENAI_API_KEY: alchemy.secret.env.OPENAI_API_KEY!,
+    ASSESSMENT_MODEL: process.env.ASSESSMENT_MODEL ?? "gpt-4o-mini",
   },
   dev: {
     port: 3000,

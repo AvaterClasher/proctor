@@ -1,14 +1,14 @@
 """Cuemath AI Tutor Screener -- LiveKit voice agent.
 
 This is the main entry point. It joins LiveKit rooms whose names start with
-``interview-``, conducts a structured screening interview via voice, and
-posts a rubric-based assessment to the Proctor backend when done.
+``interview-`` and conducts a structured screening interview via voice. When
+the interview ends the agent POSTs the full transcript to the Proctor backend
+which is responsible for generating and persisting the assessment.
 """
 
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 
 from dotenv import load_dotenv
@@ -17,8 +17,7 @@ from livekit.agents import AgentSession, Agent, AgentServer
 from livekit.agents import ConversationItemAddedEvent
 from livekit.plugins import openai, silero
 
-from api_client import post_assessment, update_interview_status
-from assessment import generate_assessment
+from api_client import finalize_interview, update_interview_status
 from interview_flow import (
     InterviewState,
     Phase,
@@ -158,45 +157,52 @@ async def entrypoint(ctx: agents.JobContext) -> None:
 
     # We track participant presence so we can handle early disconnects.
     interview_done = asyncio.Event()
+    finalize_started = asyncio.Event()
+
+    async def _do_finalize(reason: str) -> None:
+        """Fire the backend finalize call exactly once."""
+        if finalize_started.is_set():
+            return
+        finalize_started.set()
+
+        transcript_items = agent.state.get_transcript_items()
+        duration_secs = int(agent.state.elapsed_seconds)
+        status = "completed" if agent.state.phase == Phase.ENDED else "failed"
+
+        logger.info(
+            "Finalizing interview %s (reason=%s, status=%s, turns=%d)",
+            interview_id,
+            reason,
+            status,
+            len(transcript_items),
+        )
+        await finalize_interview(
+            interview_id,
+            status=status,
+            transcript_items=transcript_items,
+            duration_secs=duration_secs,
+        )
+        interview_done.set()
 
     @ctx.room.on("participant_disconnected")
     def _on_disconnect(participant: rtc.RemoteParticipant) -> None:
         logger.info("Participant %s disconnected", participant.identity)
-        interview_done.set()
+        asyncio.create_task(_do_finalize("participant_disconnect"))
 
-    # Also end when the agent flow reaches the ENDED phase.
+    # Also end when the agent flow reaches the ENDED phase. Finalize BEFORE
+    # tearing down the session so the assessment is persisted while we still
+    # own the transcript.
     async def _wait_ended() -> None:
         await agent.ended_event.wait()
         # Give the final TTS a moment to play out.
         await asyncio.sleep(3)
-        interview_done.set()
+        await _do_finalize("flow_ended")
 
     asyncio.create_task(_wait_ended())
 
     # Block until the interview is done (disconnect or flow ended).
     await interview_done.wait()
     agent.stop()
-
-    # ---- Post-interview processing ----------------------------------------
-
-    transcript = agent.state.get_full_transcript()
-    transcript_json = json.dumps(agent.state.get_transcript_items())
-
-    if not transcript.strip():
-        logger.warning("No transcript collected for %s", interview_id)
-        await update_interview_status(
-            interview_id, "failed", transcript=transcript_json
-        )
-        return
-
-    was_completed = agent.state.phase == Phase.ENDED
-    status = "completed" if was_completed else "failed"
-
-    logger.info("Interview %s finished (status=%s). Generating assessment...", interview_id, status)
-    assessment = await generate_assessment(transcript)
-    await post_assessment(interview_id, assessment)
-    await update_interview_status(interview_id, status, transcript=transcript_json)
-    logger.info("Assessment posted for %s", interview_id)
 
 
 # ---------------------------------------------------------------------------

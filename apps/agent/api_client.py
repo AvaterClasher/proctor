@@ -28,56 +28,15 @@ def _get_client() -> httpx.AsyncClient:
     return _client
 
 
-async def post_assessment(interview_id: str, assessment: dict[str, Any]) -> bool:
-    """POST the assessment payload to the backend.
-
-    Returns True on success, False on failure (errors are logged, not raised).
-    """
-    body = {
-        "interviewId": interview_id,
-        "overallScore": assessment.get("overall_score"),
-        "recommendation": assessment.get("recommendation"),
-        "summary": assessment.get("summary"),
-        "dimensions": assessment.get("dimensions", []),
-    }
-    try:
-        resp = await _get_client().post("/api/assessments", json=body)
-        resp.raise_for_status()
-        logger.info("Assessment posted for interview %s", interview_id)
-        return True
-    except httpx.HTTPStatusError as exc:
-        logger.error(
-            "Backend returned %s when posting assessment for %s: %s",
-            exc.response.status_code,
-            interview_id,
-            exc.response.text[:200],
-        )
-    except Exception as exc:
-        logger.error("Failed to post assessment for %s: %s", interview_id, exc)
-    return False
-
-
-async def update_interview_status(
-    interview_id: str,
-    status: str,
-    transcript: str | None = None,
-) -> bool:
-    """PATCH the interview status on the backend.
-
-    Valid statuses typically include: in_progress, completed, failed.
-    When ``transcript`` is provided it should be a JSON-encoded list of
-    ``{role, content, timestamp}`` items and will be persisted alongside
-    the status change.
+async def update_interview_status(interview_id: str, status: str) -> bool:
+    """PATCH the interview status on the backend (used for in_progress marker).
 
     Returns True on success, False on failure.
     """
-    body: dict[str, Any] = {"status": status}
-    if transcript is not None:
-        body["transcript"] = transcript
     try:
         resp = await _get_client().patch(
             f"/api/interviews/{interview_id}/status",
-            json=body,
+            json={"status": status},
         )
         resp.raise_for_status()
         logger.info("Interview %s status updated to %s", interview_id, status)
@@ -91,4 +50,44 @@ async def update_interview_status(
         )
     except Exception as exc:
         logger.error("Failed to update status for %s: %s", interview_id, exc)
+    return False
+
+
+async def finalize_interview(
+    interview_id: str,
+    status: str,
+    transcript_items: list[dict[str, Any]],
+    duration_secs: int | None = None,
+) -> bool:
+    """POST the transcript to the backend so it can generate the assessment
+    and persist the final interview state in one call.
+
+    ``status`` is one of ``completed`` or ``failed``. ``transcript_items`` is a
+    list of ``{role, content, timestamp}`` dicts.
+
+    Returns True on success, False on failure.
+    """
+    body: dict[str, Any] = {
+        "status": status,
+        "transcript": transcript_items,
+    }
+    if duration_secs is not None:
+        body["durationSecs"] = duration_secs
+    try:
+        resp = await _get_client().post(
+            f"/api/interviews/{interview_id}/finalize",
+            json=body,
+        )
+        resp.raise_for_status()
+        logger.info("Interview %s finalized with status %s", interview_id, status)
+        return True
+    except httpx.HTTPStatusError as exc:
+        logger.error(
+            "Backend returned %s when finalizing %s: %s",
+            exc.response.status_code,
+            interview_id,
+            exc.response.text[:200],
+        )
+    except Exception as exc:
+        logger.error("Failed to finalize %s: %s", interview_id, exc)
     return False

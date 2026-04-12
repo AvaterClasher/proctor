@@ -5,6 +5,11 @@ import { Hono } from "hono";
 
 import type { AuthEnv } from "../middleware/auth";
 import { requireAgentApiKey, requireSession } from "../middleware/auth";
+import {
+  formatTranscript,
+  generateAssessment,
+  type TranscriptItem,
+} from "../services/assessment";
 
 const VALID_INTERVIEW_STATUSES = ["scheduled", "in_progress", "completed", "failed"] as const;
 type InterviewStatus = (typeof VALID_INTERVIEW_STATUSES)[number];
@@ -133,6 +138,82 @@ app.get("/:id", requireSession, async (c) => {
     candidate: row.candidate,
     assessment: row.assessment,
   });
+});
+
+app.post("/:id/finalize", requireAgentApiKey, async (c) => {
+  const id = c.req.param("id")!;
+  const body = await c.req.json<{
+    status: "completed" | "failed";
+    transcript: TranscriptItem[];
+    durationSecs?: number;
+  }>();
+
+  if (!body.status || !VALID_INTERVIEW_STATUSES.includes(body.status)) {
+    return c.json({ error: "status must be 'completed' or 'failed'" }, 400);
+  }
+  if (!Array.isArray(body.transcript)) {
+    return c.json({ error: "transcript must be an array" }, 400);
+  }
+
+  const db = createDb();
+
+  const existing = await db
+    .select()
+    .from(interview)
+    .where(eq(interview.id, id))
+    .get();
+
+  if (!existing) {
+    return c.json({ error: "Interview not found" }, 404);
+  }
+
+  const transcriptJson = JSON.stringify(body.transcript);
+
+  await db
+    .update(interview)
+    .set({
+      status: body.status,
+      transcript: transcriptJson,
+      ...(body.durationSecs !== undefined && { durationSecs: body.durationSecs }),
+    })
+    .where(eq(interview.id, id));
+
+  const transcriptText = formatTranscript(body.transcript);
+  if (!transcriptText.trim()) {
+    return c.json({ success: true, assessment: null });
+  }
+
+  const generated = await generateAssessment(transcriptText);
+
+  const assessmentId = crypto.randomUUID();
+  const existingAssessment = await db
+    .select()
+    .from(assessment)
+    .where(eq(assessment.interviewId, id))
+    .get();
+
+  if (existingAssessment) {
+    await db
+      .update(assessment)
+      .set({
+        overallScore: generated.overallScore,
+        recommendation: generated.recommendation,
+        summary: generated.summary,
+        dimensions: JSON.stringify(generated.dimensions),
+      })
+      .where(eq(assessment.interviewId, id));
+  } else {
+    await db.insert(assessment).values({
+      id: assessmentId,
+      interviewId: id,
+      overallScore: generated.overallScore,
+      recommendation: generated.recommendation,
+      summary: generated.summary,
+      dimensions: JSON.stringify(generated.dimensions),
+    });
+  }
+
+  return c.json({ success: true, assessment: generated });
 });
 
 app.patch("/:id/status", requireAgentApiKey, async (c) => {

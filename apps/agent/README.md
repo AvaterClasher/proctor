@@ -48,6 +48,10 @@ docker run --env-file .env proctor-agent
 | ------------------ | ---------------------------------------------- |
 | `agent.py`         | Main entry point and LiveKit session setup      |
 | `interview_flow.py`| Interview phase management and question logic   |
-| `assessment.py`    | Post-interview rubric evaluation via OpenAI     |
-| `prompts.py`       | System prompts, question bank, rubric           |
+| `prompts.py`       | Interviewer system prompt and question bank     |
 | `api_client.py`    | HTTP client for the Proctor backend API         |
+
+Post-interview assessment generation (rubric scoring) is performed by the
+backend — the agent streams the full transcript to the Proctor API via
+`POST /api/interviews/:id/finalize` and the server generates and persists
+the assessment.
