@@ -18,9 +18,13 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome {session.user.name}</p>
+    <div className="mx-auto w-full max-w-2xl px-6 py-12">
+      <h1 className="font-display text-2xl font-semibold tracking-tight">
+        Dashboard
+      </h1>
+      <p className="mt-1 mb-8 text-sm text-muted-foreground">
+        Welcome, {session.user.name}
+      </p>
       <Dashboard session={session} />
     </div>
   );

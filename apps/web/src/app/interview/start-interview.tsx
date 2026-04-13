@@ -1,17 +1,10 @@
 "use client";
 
 import { Button } from "@proctor/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@proctor/ui/components/card";
 import { Input } from "@proctor/ui/components/input";
 import { Label } from "@proctor/ui/components/label";
 import { useForm } from "@tanstack/react-form";
-import { Clock, Headphones, Mic, MessageSquare } from "lucide-react";
+import { Headphones } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
@@ -71,161 +64,108 @@ export default function StartInterview({
   });
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Welcome to the Cuemath Tutor Screening
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          We are excited to learn more about you. This voice-based interview
-          helps us understand your teaching skills and approach.
-        </p>
+    <div className="animate-in mx-auto w-full max-w-lg px-6 py-12">
+      <h1 className="font-display text-2xl font-semibold tracking-tight">
+        Before we begin
+      </h1>
+      <p className="mt-2 mb-8 max-w-[55ch] text-sm leading-relaxed text-muted-foreground">
+        This voice interview takes about 10 minutes. You'll speak with an AI
+        interviewer about your teaching approach and communication skills.
+      </p>
+
+      <div className="mb-8 flex items-center gap-3 rounded-md bg-secondary px-4 py-3 text-sm text-muted-foreground">
+        <Headphones className="size-4 shrink-0 text-foreground/50" />
+        Use headphones in a quiet environment for the best experience.
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="size-4" />
-              ~10 Minutes
-            </CardTitle>
-            <CardDescription>
-              The interview takes approximately 10 minutes to complete.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <form.Field name="name">
+          {(field) => (
+            <div className="space-y-1.5">
+              <Label htmlFor={field.name}>Full Name</Label>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="text"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.errors.map((error) => (
+                <p key={error?.message} className="text-xs text-destructive">
+                  {error?.message}
+                </p>
+              ))}
+            </div>
+          )}
+        </form.Field>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mic className="size-4" />
-              Voice-Based
-            </CardTitle>
-            <CardDescription>
-              You will speak with an AI interviewer. Have your microphone ready.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <form.Field name="email">
+          {(field) => (
+            <div className="space-y-1.5">
+              <Label htmlFor={field.name}>Email</Label>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="email"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.errors.map((error) => (
+                <p key={error?.message} className="text-xs text-destructive">
+                  {error?.message}
+                </p>
+              ))}
+            </div>
+          )}
+        </form.Field>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="size-4" />
-              Topics Covered
-            </CardTitle>
-            <CardDescription>
-              Math knowledge, teaching approach, and communication skills.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+        <form.Field name="phone">
+          {(field) => (
+            <div className="space-y-1.5">
+              <Label htmlFor={field.name}>
+                Phone Number{" "}
+                <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="tel"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                placeholder="+1 (555) 000-0000"
+              />
+            </div>
+          )}
+        </form.Field>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Details</CardTitle>
-          <CardDescription>
-            Confirm your information before starting the interview.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
-            <Headphones className="size-4 shrink-0" />
-            <span>
-              Please use headphones for the best experience and find a quiet
-              environment.
-            </span>
-          </div>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
-            className="space-y-4"
-          >
-            <form.Field name="name">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Full Name</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="text"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-xs text-red-500">
-                      {error?.message}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form.Field>
-
-            <form.Field name="email">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Email</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="email"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-xs text-red-500">
-                      {error?.message}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form.Field>
-
-            <form.Field name="phone">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>
-                    Phone Number{" "}
-                    <span className="text-muted-foreground">(optional)</span>
-                  </Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="tel"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-              )}
-            </form.Field>
-
-            <form.Subscribe
-              selector={(state) => ({
-                canSubmit: state.canSubmit,
-                isSubmitting: state.isSubmitting,
-              })}
+        <form.Subscribe
+          selector={(state) => ({
+            canSubmit: state.canSubmit,
+            isSubmitting: state.isSubmitting,
+          })}
+        >
+          {({ canSubmit, isSubmitting }) => (
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-2 w-full"
+              disabled={!canSubmit || isSubmitting}
             >
-              {({ canSubmit, isSubmitting }) => (
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full"
-                  disabled={!canSubmit || isSubmitting}
-                >
-                  {isSubmitting ? "Starting Interview..." : "Start Interview"}
-                </Button>
-              )}
-            </form.Subscribe>
-          </form>
-        </CardContent>
-      </Card>
+              {isSubmitting ? "Starting..." : "Begin Interview"}
+            </Button>
+          )}
+        </form.Subscribe>
+      </form>
     </div>
   );
 }

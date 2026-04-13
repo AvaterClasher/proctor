@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@proctor/ui/components/card";
-import { Calendar, Mail, Timer, User } from "lucide-react";
-
 import { formatDate, formatDuration, titleCase } from "@/lib/format";
 import { recommendationStyles } from "@/lib/styles";
-import ScoreBadge from "./score-badge";
 
 interface AssessmentCardProps {
   assessment: {
@@ -29,70 +19,57 @@ interface AssessmentCardProps {
   };
 }
 
+const scoreColors: Record<number, string> = {
+  1: "text-red-700 dark:text-red-400",
+  2: "text-orange-700 dark:text-orange-400",
+  3: "text-yellow-700 dark:text-yellow-500",
+  4: "text-green-700 dark:text-green-400",
+  5: "text-emerald-700 dark:text-emerald-400",
+};
+
 export default function AssessmentCard({
   assessment,
   candidate,
   interview,
 }: AssessmentCardProps) {
-  const recStyle = recommendationStyles[assessment.recommendation] ?? recommendationStyles.maybe;
+  const recStyle =
+    recommendationStyles[assessment.recommendation] ??
+    recommendationStyles.maybe;
+  const clamped = Math.max(1, Math.min(5, Math.round(assessment.overallScore)));
+  const scoreColor = scoreColors[clamped] ?? scoreColors[3];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Assessment Summary</CardTitle>
-        <CardDescription>AI-generated evaluation of the interview</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-3xl font-bold tabular-nums">
-                {assessment.overallScore}
-              </span>
-              <ScoreBadge score={assessment.overallScore} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Recommendation</span>
-              <span
-                className={`inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${recStyle}`}
-              >
-                {titleCase(assessment.recommendation)}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 text-xs">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <User className="size-3.5" />
-              <span>{candidate.name}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Mail className="size-3.5" />
-              <span>{candidate.email}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="size-3.5" />
-              <span>
-                {formatDate(interview.createdAt, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Timer className="size-3.5" />
-              <span>{formatDuration(interview.durationSecs)}</span>
-            </div>
-          </div>
+    <section>
+      <div className="mb-4 flex items-baseline gap-6">
+        <div className="tabular-nums">
+          <span className={`font-display text-4xl font-bold ${scoreColor}`}>
+            {assessment.overallScore}
+          </span>
+          <span className="text-lg text-muted-foreground">/5</span>
         </div>
+        <span className={`text-sm font-medium ${recStyle}`}>
+          {titleCase(assessment.recommendation)}
+        </span>
+      </div>
 
-        <div className="mt-4 border-t pt-4">
-          <p className="text-xs/relaxed text-muted-foreground">{assessment.summary}</p>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="mb-6 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
+        <span>{candidate.name}</span>
+        <span>{candidate.email}</span>
+        <span>
+          {formatDate(interview.createdAt, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+        <span>{formatDuration(interview.durationSecs)}</span>
+      </div>
+
+      <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
+        {assessment.summary}
+      </p>
+    </section>
   );
 }

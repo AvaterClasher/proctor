@@ -1,71 +1,66 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@proctor/ui/components/card";
-import { Mic, User } from "lucide-react";
-
 interface TranscriptMessage {
   role: "agent" | "candidate";
   content: string;
   timestamp: string;
 }
 
-export default function TranscriptViewer({ transcript }: { transcript: TranscriptMessage[] }) {
+export default function TranscriptViewer({
+  transcript,
+}: {
+  transcript: TranscriptMessage[];
+}) {
   if (transcript.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Transcript</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">No transcript available.</p>
-        </CardContent>
-      </Card>
+      <section>
+        <h2 className="font-display text-lg font-semibold tracking-tight">
+          Transcript
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          No transcript available.
+        </p>
+      </section>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Full Transcript</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex max-h-[600px] flex-col gap-3 overflow-y-auto pr-2">
-          {transcript.map((message, index) => {
-            const isAgent = message.role === "agent";
-            return (
-              <div
-                key={index}
-                className={`flex flex-col gap-1 ${isAgent ? "items-start" : "items-end"}`}
-              >
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  {isAgent ? <Mic className="size-3" /> : <User className="size-3" />}
-                  <span className="font-medium">
-                    {isAgent ? "Agent" : "Candidate"}
-                  </span>
-                  <span>{formatTimestamp(message.timestamp)}</span>
-                </div>
-                <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-xs/relaxed ${
-                    isAgent
-                      ? "bg-muted text-muted-foreground"
-                      : "bg-primary/10 text-foreground"
-                  }`}
-                >
-                  {message.content}
-                </div>
+    <section>
+      <h2 className="font-display text-lg font-semibold tracking-tight">
+        Transcript
+      </h2>
+      <div className="mt-4 max-h-[600px] space-y-5 overflow-y-auto pr-2">
+        {transcript.map((message, index) => {
+          const isAgent = message.role === "agent";
+          return (
+            <div key={index}>
+              <div className="mb-1 flex items-center gap-2">
+                <span className="text-xs font-medium text-foreground/70">
+                  {isAgent ? "Interviewer" : "Candidate"}
+                </span>
+                <span className="text-xs text-muted-foreground/60">
+                  {formatTimestamp(message.timestamp)}
+                </span>
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+              <p className="max-w-prose text-sm leading-relaxed text-foreground/85">
+                {message.content}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
 function formatTimestamp(ts: string): string {
   try {
     const date = new Date(ts);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   } catch {
     return ts;
   }

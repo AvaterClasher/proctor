@@ -2,13 +2,6 @@
 
 import { Button } from "@proctor/ui/components/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@proctor/ui/components/card";
-import {
   RoomAudioRenderer,
   SessionProvider,
   useAgent,
@@ -17,7 +10,6 @@ import {
   useSessionContext,
 } from "@livekit/components-react";
 import { TokenSource } from "livekit-client";
-import { Mic, MicOff, Phone, PhoneOff, Radio } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -112,7 +104,9 @@ function ViewController() {
 function WelcomeView({
   onStart,
 }: {
-  onStart: (options?: Parameters<ReturnType<typeof useSession>["start"]>[0]) => Promise<void>;
+  onStart: (
+    options?: Parameters<ReturnType<typeof useSession>["start"]>[0],
+  ) => Promise<void>;
 }) {
   const [micPermission, setMicPermission] = useState<
     "prompt" | "granted" | "denied"
@@ -148,61 +142,57 @@ function WelcomeView({
   }, [onStart]);
 
   return (
-    <div className="mx-auto flex w-full max-w-lg items-center justify-center px-4 py-16">
-      <Card className="w-full">
-        <CardHeader className="text-center">
-          <CardTitle className="text-lg">Ready to Begin?</CardTitle>
-          <CardDescription>
-            Make sure your microphone is working before we start.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between rounded-md border p-3">
-            <div className="flex items-center gap-3">
-              {micPermission === "granted" ? (
-                <Mic className="size-5 text-emerald-500" />
-              ) : (
-                <MicOff className="size-5 text-red-500" />
-              )}
-              <div>
-                <p className="text-sm font-medium">Microphone</p>
-                <p className="text-xs text-muted-foreground">
-                  {micPermission === "granted"
-                    ? "Access granted"
-                    : micPermission === "denied"
-                      ? "Access denied"
-                      : "Requesting access..."}
-                </p>
-              </div>
-            </div>
-            {micPermission === "denied" && (
-              <Button variant="outline" size="sm" onClick={requestMicPermission}>
+    <div className="flex h-full items-center justify-center px-6">
+      <div className="animate-in w-full max-w-sm text-center">
+        <h2 className="font-display text-xl font-semibold tracking-tight">
+          Ready?
+        </h2>
+        <p className="mt-2 mb-8 text-sm text-muted-foreground">
+          Make sure your microphone is working before we start.
+        </p>
+
+        <div className="mb-8 flex items-center justify-center gap-2.5 text-sm">
+          {micPermission === "granted" ? (
+            <>
+              <span className="size-2 rounded-full bg-emerald-500" />
+              <span className="text-muted-foreground">Microphone ready</span>
+            </>
+          ) : micPermission === "denied" ? (
+            <>
+              <span className="size-2 rounded-full bg-destructive" />
+              <span className="text-muted-foreground">Microphone blocked</span>
+              <button
+                onClick={requestMicPermission}
+                className="ml-2 text-xs text-primary hover:underline"
+              >
                 Retry
-              </Button>
-            )}
-          </div>
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="size-2 animate-pulse rounded-full bg-muted-foreground" />
+              <span className="text-muted-foreground">
+                Requesting access...
+              </span>
+            </>
+          )}
+        </div>
 
-          <div className="space-y-2 text-xs text-muted-foreground">
-            <p>Before you begin:</p>
-            <ul className="list-inside list-disc space-y-1">
-              <li>Find a quiet environment</li>
-              <li>Speak clearly and at a natural pace</li>
-              <li>The interview will last approximately 10 minutes</li>
-              <li>You can end the interview early if needed</li>
-            </ul>
-          </div>
+        <Button
+          size="lg"
+          className="w-full"
+          disabled={micPermission !== "granted" || isStarting}
+          onClick={handleBegin}
+        >
+          {isStarting ? "Connecting..." : "Start Interview"}
+        </Button>
 
-          <Button
-            size="lg"
-            className="w-full"
-            disabled={micPermission !== "granted" || isStarting}
-            onClick={handleBegin}
-          >
-            <Phone className="size-4" />
-            {isStarting ? "Connecting..." : "I'm Ready"}
-          </Button>
-        </CardContent>
-      </Card>
+        <ul className="mt-8 space-y-1.5 text-left text-xs text-muted-foreground">
+          <li>Speak clearly at a natural pace</li>
+          <li>About 10 minutes total</li>
+          <li>You can end early if needed</li>
+        </ul>
+      </div>
     </div>
   );
 }
@@ -210,12 +200,11 @@ function WelcomeView({
 function InterviewActive({ onEnd }: { onEnd: () => void }) {
   const agent = useAgent();
   const [elapsed, setElapsed] = useState(0);
-  const [showStatus, setShowStatus] = useState(false);
   const startTimeRef = useRef(Date.now());
 
   const audioTrack =
     "microphoneTrack" in agent ? agent.microphoneTrack : undefined;
-  const { bars: agentBars } = useAudioWaveform(audioTrack, { barCount: 7 });
+  const { bars: agentBars } = useAudioWaveform(audioTrack, { barCount: 9 });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -230,61 +219,39 @@ function InterviewActive({ onEnd }: { onEnd: () => void }) {
 
   const stateLabel =
     agent.state === "speaking"
-      ? "Interviewer is speaking..."
+      ? "Interviewer is speaking"
       : agent.state === "listening"
-        ? "Listening to you..."
+        ? "Listening"
         : agent.state === "thinking"
-          ? "Processing..."
+          ? "Processing"
           : agent.state === "connecting" ||
               agent.state === "pre-connect-buffering"
-            ? "Connecting to interviewer..."
+            ? "Connecting to interviewer"
             : "Ready";
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-8 px-4 py-8">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Radio className="size-3 animate-pulse text-red-500" />
-        <span>Interview in Progress</span>
-        <span className="ml-2 font-mono">{timeDisplay}</span>
+    <div className="flex h-full flex-col items-center justify-center px-6">
+      <div className="mb-16 flex items-center gap-3">
+        <span className="size-1.5 animate-pulse rounded-full bg-red-500" />
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          {timeDisplay}
+        </span>
       </div>
 
-      <Card className="w-full">
-        <CardContent className="flex flex-col items-center gap-4 py-6">
-          <div className="text-xs font-medium text-muted-foreground">
-            {stateLabel}
-          </div>
-          <AudioVisualizer
-            frequencies={agentBars}
-            isAgent={true}
-            className="h-12"
-          />
-        </CardContent>
-      </Card>
+      <AudioVisualizer
+        frequencies={agentBars}
+        isAgent={true}
+        className="mb-6 h-20"
+      />
 
-      {showStatus && (
-        <Card className="w-full">
-          <CardContent className="py-3">
-            <p className="text-center text-xs text-muted-foreground">
-              Agent state: {agent.state}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <p className="mb-16 text-sm text-muted-foreground">{stateLabel}</p>
 
-      <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowStatus((prev) => !prev)}
-        >
-          {showStatus ? "Hide Status" : "Show Status"}
-        </Button>
-
-        <Button variant="destructive" size="sm" onClick={onEnd}>
-          <PhoneOff className="size-4" />
-          End Interview
-        </Button>
-      </div>
+      <button
+        onClick={onEnd}
+        className="text-xs text-muted-foreground transition-colors hover:text-destructive"
+      >
+        End interview
+      </button>
     </div>
   );
 }
