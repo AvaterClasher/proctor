@@ -104,7 +104,6 @@ app.get("/", requireSession, async (c) => {
 
 app.get("/:id", requireSession, async (c) => {
   const id = c.req.param("id")!;
-  const session = c.get("session");
   const db = createDb();
 
   const row = await db
@@ -116,11 +115,6 @@ app.get("/:id", requireSession, async (c) => {
     .get();
 
   if (!row) {
-    return c.json({ error: "Interview not found" }, 404);
-  }
-
-  // Candidates can only view their own interviews
-  if (row.candidate?.userId && row.candidate.userId !== session.user.id) {
     return c.json({ error: "Interview not found" }, 404);
   }
 

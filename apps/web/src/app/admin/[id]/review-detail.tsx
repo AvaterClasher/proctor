@@ -56,13 +56,22 @@ export default function ReviewDetail({
   const router = useRouter();
   const [interview, setInterview] = useState<InterviewDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const fetchInterview = useCallback(async () => {
     try {
       setLoading(true);
+      setNotFound(false);
+      setLoadError(false);
       const res = await fetch(`/api/interviews/${interviewId}`, {
         credentials: "include",
       });
+      if (res.status === 404) {
+        setInterview(null);
+        setNotFound(true);
+        return;
+      }
       if (!res.ok) throw new Error("Failed to fetch interview");
       const raw = (await res.json()) as {
         interview: {
@@ -125,6 +134,8 @@ export default function ReviewDetail({
           : null,
       });
     } catch (err) {
+      setInterview(null);
+      setLoadError(true);
       toast.error("Failed to load interview details");
       console.error(err);
     } finally {
@@ -147,7 +158,7 @@ export default function ReviewDetail({
     );
   }
 
-  if (!interview) {
+  if (notFound) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6">
         <Button variant="ghost" size="sm" onClick={() => router.push("/admin")}>
@@ -156,6 +167,22 @@ export default function ReviewDetail({
         </Button>
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">Interview not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError || !interview) {
+    return (
+      <div className="mx-auto w-full max-w-4xl px-4 py-6">
+        <Button variant="ghost" size="sm" onClick={() => router.push("/admin")}>
+          <ArrowLeft className="size-4" />
+          Back
+        </Button>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            Failed to load interview details.
+          </p>
         </div>
       </div>
     );
