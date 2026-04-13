@@ -1,25 +1,23 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Figtree } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import "../index.css";
 import Header from "@/components/header";
 import Providers from "@/components/providers";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-heading",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: "swap",
 });
 
-const figtree = Figtree({
-  variable: "--font-body",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Proctor",
-  description: "AI-powered tutor screening",
+  title: "proctor",
+  description: "proctor",
 };
 
 export default function RootLayout({
@@ -29,11 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${bricolage.variable} ${figtree.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <div className="grid h-svh grid-rows-[auto_1fr]">
+          <div className="grid grid-rows-[auto_1fr] h-svh">
             <Header />
             {children}
           </div>
